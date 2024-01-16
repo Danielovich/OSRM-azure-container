@@ -1,0 +1,50 @@
+parameters:
+- name: dockerFilePath
+  displayName: 'Docker File Path'
+  type: string
+  default: 'Dockerfile'
+
+trigger: none 
+
+pr:
+  branches:
+    include:
+    - main
+
+pool:
+    vmImage: 'ubuntu-20.04'
+
+stages:
+- stage: DevDeploy
+  jobs:
+  - job: BuildAndDeployDev
+    steps:    
+    - task: CmdLine@2
+      inputs:
+        script: |
+          echo  'Contents of : $(Pipeline.Workspace)'
+          ls -R
+    - task: CopyFiles@2
+      displayName: 'Copy deployment files'
+      inputs:
+        SourceFolder: '$(Pipeline.Workspace)'
+        contents: | 
+          **
+          !.git/**/*
+        TargetFolder: '$(Build.ArtifactStagingDirectory)'
+        flattenFolders: true
+    - task: CmdLine@2
+      inputs:
+        script: |
+          echo  'Contents of : $(Build.ArtifactStagingDirectory)'
+          cd $(Build.ArtifactStagingDirectory)
+          ls -R
+    - task: AzureCLI@2
+      displayName: 'Provision'
+      name: deployment
+      inputs:
+        azureSubscription: 'zerfro'
+        scriptType: pscore
+        scriptPath: '$(Build.ArtifactStagingDirectory)/deploy.ps1'
+        arguments: '-dockerFilePath ${{ parameters.dockerFilePath }}'
+        workingDirectory: '$(Build.ArtifactStagingDirectory)'
