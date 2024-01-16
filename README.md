@@ -24,8 +24,10 @@ deploy.ps1 will setup the following for you:
 - Container Registry
 - Container 
 
+deploy1.ps will finish, if successful, with outputting the DNS where you can find your container instance running.
+
 When finished provisioning you can start your route API requests, e.g.
 
-https://..../route/v1/driving/55.495972,9.473052;55.728760,12.437280?steps=true
+https://{YOUR-DNS-NAME}/route/v1/driving/55.495972,9.473052;55.728760,12.437280?steps=true
 
 From the https://zerfro.com team.
